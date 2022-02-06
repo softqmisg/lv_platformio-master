@@ -54,59 +54,149 @@ LV_IMG_DECLARE(img_bubble_pattern)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+lv_obj_t *screenMain;
+lv_obj_t *label;
+lv_obj_t *btn1;
+lv_obj_t *btn2;
+lv_obj_t *btn3;
 
+static void event_handler_btn(lv_obj_t * obj, lv_event_t event){
+
+    if(event == LV_EVENT_CLICKED) {
+        if (obj == btn1)
+          lv_label_set_text(label, "Hello");
+        else if (obj == btn2)
+          lv_label_set_text(label, "Goodbye");
+        else if (obj == btn3)
+          lv_label_set_text(label, "مهدی");         
+    }
+}
 /**
  * Create a demo application
  */
 void demo_create(void)
 {
-    lv_coord_t hres = lv_disp_get_hor_res(NULL);
-    lv_coord_t vres = lv_disp_get_ver_res(NULL);
+    screenMain = lv_scr_act();
+   
+  label=lv_label_create(screenMain,NULL);
+  lv_label_set_recolor(label,true);
+  lv_label_set_text(label,  LV_SYMBOL_OK "#00ff00 Apply #" "#0000ff \xef\x87\xab #" "#ff0000 \xef\x8a\x93 #");  //LV_SYMBOL_SD_CARD LV_SYMBOL_BLUETOOTH LV_SYMBOL_BATTERY_EMPTY);
+  lv_obj_set_size(label, 240, 40);
+  lv_obj_set_pos(label, 40, 150);
+  lv_obj_set_style_local_text_font(label,0,LV_STATE_DEFAULT,&lv_font_montserrat_20);
 
-#if LV_DEMO_WALLPAPER
-    lv_obj_t * wp = lv_img_create(lv_disp_get_scr_act(NULL), NULL);
-    lv_img_set_src(wp, &img_bubble_pattern);
-    lv_obj_set_width(wp, hres * 4);
-    lv_obj_add_protect(wp, LV_PROTECT_POS);
-#endif
+    static lv_style_t style;
+    lv_style_init(&style);
 
-    static lv_style_t style_tv_btn;
-    lv_style_init(&style_tv_btn);
-    lv_style_set_bg_color(&style_tv_btn, LV_STATE_DEFAULT, lv_color_hex(0x487fb7));
-    lv_style_set_bg_grad_color(&style_tv_btn, LV_STATE_DEFAULT, lv_color_hex(0x487fb7));
-    lv_style_set_pad_top(&style_tv_btn, LV_STATE_DEFAULT, 0);
-    lv_style_set_pad_bottom(&style_tv_btn, LV_STATE_DEFAULT, 0);
-    lv_style_set_bg_opa(&style_tv_btn, LV_BTN_STATE_RELEASED, LV_OPA_TRANSP);
-    lv_style_set_border_width(&style_tv_btn, LV_BTN_STATE_RELEASED, 0);
-    lv_style_set_radius(&style_tv_btn, LV_BTN_STATE_PRESSED, 0);
-    lv_style_set_bg_opa(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_OPA_50);
-    lv_style_set_bg_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_WHITE);
-    lv_style_set_bg_grad_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_WHITE);
-    lv_style_set_border_width(&style_tv_btn, LV_BTN_STATE_PRESSED, 0);
-    lv_style_set_text_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_GRAY);
+    lv_style_set_border_color(&style, LV_STATE_DEFAULT,lv_color_hex(0xffbf00));
+    lv_style_set_border_width(&style,LV_STATE_DEFAULT, 3);
+    lv_style_set_border_opa(&style, LV_STATE_DEFAULT,LV_OPA_50);
+    lv_style_set_border_side(&style, LV_STATE_DEFAULT,LV_BORDER_SIDE_BOTTOM | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT); //LV_BORDER_SIDE_FULL
 
-    lv_obj_t * tv = lv_tabview_create(lv_scr_act(), NULL);
-    lv_obj_set_size(tv, hres, vres);
+  label = lv_label_create(screenMain,NULL);
+  lv_label_set_long_mode(label, LV_LABEL_LONG_EXPAND);
+  // lv_label_set_text(label, "سلام مهدی: this is start");
+  // lv_label_set_text(label, "سلام مهدی1ودیگر2:thisوما2");
+  // lv_label_set_text(label, "سللام مهدی1ودیگر 2 :this و ما2");
+  lv_label_set_text(label, "سلام مهدی 1 و دیگر :this is us وما 2");
+  lv_label_set_align(label,LV_ALIGN_CENTER);
+  lv_obj_set_base_dir(label, LV_BIDI_DIR_RTL);
+  lv_obj_set_size(label, 310, 40);
+  lv_obj_set_pos(label, 0, 180);
+  lv_obj_set_style_local_text_font(label,0,LV_STATE_DEFAULT, &lv_font_dejavu_16_persian_hebrew);
+  lv_obj_add_style(label,0, &style);
 
-#if LV_DEMO_WALLPAPER
-    lv_obj_set_parent(wp, ((lv_tabview_ext_t *) tv->ext_attr)->content);
-    lv_obj_set_pos(wp, 0, -5);
-#endif
+  label = lv_label_create(screenMain,NULL);
+  lv_label_set_long_mode(label, LV_LABEL_LONG_EXPAND);
+  lv_label_set_text(label, "Press a button");
+  lv_label_set_align(label,LV_ALIGN_CENTER);
+  lv_obj_set_base_dir(label, LV_BIDI_DIR_AUTO);
+  lv_obj_set_style_local_text_font(label,0,LV_STATE_DEFAULT, &lv_font_dejavu_16_persian_hebrew);
+  lv_obj_set_size(label, 320, 40);
+  lv_obj_set_pos(label, 0, 15);
+  
 
-    lv_obj_t * tab1 = lv_tabview_add_tab(tv, "Write");
-    lv_obj_t * tab2 = lv_tabview_add_tab(tv, "List");
-    lv_obj_t * tab3 = lv_tabview_add_tab(tv, "Chart");
+  btn1 = lv_btn_create(screenMain,NULL);
+  lv_obj_set_event_cb(btn1,event_handler_btn);
+  lv_obj_set_width(btn1, 70);
+  lv_obj_set_height(btn1, 32);
+  lv_obj_set_pos(btn1, 32, 100);
 
-#if LV_DEMO_WALLPAPER == 0
-    /*Blue bg instead of wallpaper*/
-    lv_tabview_set_style(tv, LV_TABVIEW_STYLE_BG, &style_tv_btn_bg);
-#endif
+  lv_obj_t * label1 = lv_label_create(btn1,NULL);
+  lv_label_set_text(label1, "Hello");
+  lv_label_set_align(label1,LV_ALIGN_CENTER);
 
-    lv_obj_add_style(tv, LV_TABVIEW_PART_TAB_BTN, &style_tv_btn);
+  btn2 = lv_btn_create(screenMain,NULL);
+  lv_obj_set_event_cb(btn2,event_handler_btn);
+  lv_obj_set_width(btn2, 70);
+  lv_obj_set_height(btn2, 32);
+  lv_obj_set_pos(btn2, 132, 100);
 
-    write_create(tab1);
-    list_create(tab2);
-    chart_create(tab3);
+  lv_obj_t * label2 = lv_label_create(btn2,NULL);
+  lv_label_set_text(label2, "Goodbye");
+  lv_label_set_align(label2,LV_ALIGN_CENTER);
+
+ 
+  btn3 = lv_btn_create(screenMain,NULL);
+  lv_obj_set_event_cb(btn3,event_handler_btn);
+  lv_obj_set_width(btn3, 70);
+  lv_obj_set_height(btn3, 32);
+  lv_obj_set_pos(btn3, 232, 100);
+
+  lv_obj_t * label3 = lv_label_create(btn3,NULL);
+  lv_label_set_text(label3, "مهدی");
+  lv_label_set_align(label3,LV_ALIGN_CENTER);
+  lv_obj_set_base_dir(label3, LV_BIDI_DIR_RTL);
+  lv_obj_set_style_local_text_font(label,0,LV_STATE_DEFAULT, &lv_font_dejavu_16_persian_hebrew);
+    
+    ///=============================================================//
+//     lv_coord_t hres = lv_disp_get_hor_res(NULL);
+//     lv_coord_t vres = lv_disp_get_ver_res(NULL);
+
+// #if LV_DEMO_WALLPAPER
+//     lv_obj_t * wp = lv_img_create(lv_disp_get_scr_act(NULL), NULL);
+//     lv_img_set_src(wp, &img_bubble_pattern);
+//     lv_obj_set_width(wp, hres * 4);
+//     lv_obj_add_protect(wp, LV_PROTECT_POS);
+// #endif
+
+//     static lv_style_t style_tv_btn;
+//     lv_style_init(&style_tv_btn);
+//     lv_style_set_bg_color(&style_tv_btn, LV_STATE_DEFAULT, lv_color_hex(0x487fb7));
+//     lv_style_set_bg_grad_color(&style_tv_btn, LV_STATE_DEFAULT, lv_color_hex(0x487fb7));
+//     lv_style_set_pad_top(&style_tv_btn, LV_STATE_DEFAULT, 0);
+//     lv_style_set_pad_bottom(&style_tv_btn, LV_STATE_DEFAULT, 0);
+//     lv_style_set_bg_opa(&style_tv_btn, LV_BTN_STATE_RELEASED, LV_OPA_TRANSP);
+//     lv_style_set_border_width(&style_tv_btn, LV_BTN_STATE_RELEASED, 0);
+//     lv_style_set_radius(&style_tv_btn, LV_BTN_STATE_PRESSED, 0);
+//     lv_style_set_bg_opa(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_OPA_50);
+//     lv_style_set_bg_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_WHITE);
+//     lv_style_set_bg_grad_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_WHITE);
+//     lv_style_set_border_width(&style_tv_btn, LV_BTN_STATE_PRESSED, 0);
+//     lv_style_set_text_color(&style_tv_btn, LV_BTN_STATE_PRESSED, LV_COLOR_GRAY);
+
+//     lv_obj_t * tv = lv_tabview_create(lv_scr_act(), NULL);
+//     lv_obj_set_size(tv, hres, vres);
+
+// #if LV_DEMO_WALLPAPER
+//     lv_obj_set_parent(wp, ((lv_tabview_ext_t *) tv->ext_attr)->content);
+//     lv_obj_set_pos(wp, 0, -5);
+// #endif
+
+//     lv_obj_t * tab1 = lv_tabview_add_tab(tv, "Write");
+//     lv_obj_t * tab2 = lv_tabview_add_tab(tv, "List");
+//     lv_obj_t * tab3 = lv_tabview_add_tab(tv, "Chart");
+
+// #if LV_DEMO_WALLPAPER == 0
+//     /*Blue bg instead of wallpaper*/
+//     lv_tabview_set_style(tv, LV_TABVIEW_STYLE_BG, &style_tv_btn_bg);
+// #endif
+
+//     lv_obj_add_style(tv, LV_TABVIEW_PART_TAB_BTN, &style_tv_btn);
+
+//     write_create(tab1);
+//     list_create(tab2);
+//     chart_create(tab3);
 
 #if LV_DEMO_SLIDE_SHOW
     lv_task_create(tab_switcher, 3000, LV_TASK_PRIO_MID, tv);
