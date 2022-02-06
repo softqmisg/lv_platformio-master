@@ -1,4 +1,4 @@
-# Run LittlevGL via PlatformIO
+# Run lvgl 8.1.0 via PlatformIO
 
 [![CI](https://github.com/lvgl/lv_platformio/workflows/CI/badge.svg?branch=master)](https://github.com/lvgl/lv_platformio/actions)
 
