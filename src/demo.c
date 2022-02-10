@@ -18,7 +18,7 @@ static void back_event_handler(lv_event_t * e)
     lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
 
     if(lv_menu_back_btn_is_root(menu, obj)) {
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Hello", "Root back btn click.", NULL, true);
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "سلام", "Root back btn click.", NULL, true);
         lv_obj_center(mbox1);
     }
 
@@ -45,7 +45,7 @@ static void start_btn_event(lv_event_t *e)
     lv_obj_t *btn_back_label=lv_label_create(((lv_menu_t *)menu)->sidebar_header_back_btn);
     lv_label_set_long_mode(btn_back_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_flex_grow(btn_back_label, 1);
-    lv_label_set_text(btn_back_label,"Backcccccc"); 
+    lv_label_set_text(btn_back_label,"بازگشت"); 
 
     lv_anim_t a;
     lv_anim_init(&a);
@@ -113,7 +113,7 @@ void  demo6_create(){
                         lv_img_set_src(img,LV_SYMBOL_HOME);   
                         lv_obj_set_style_pad_right(img,1,1);
                         lv_obj_t *label = lv_label_create(con);
-                        lv_label_set_text(label, " Home");
+                        lv_label_set_text(label, "خانه");
                         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
                         lv_obj_set_flex_grow(label, 1);
 
@@ -192,7 +192,7 @@ void  demo6_create(){
    
     lv_obj_t *start_btn=lv_btn_create(menu);
     label=lv_label_create(start_btn);
-    lv_label_set_text(label,"Menu");
+    lv_label_set_text(label,"منو");
     lv_obj_add_event_cb(start_btn,start_btn_event,LV_EVENT_CLICKED,main_page);
     
 
