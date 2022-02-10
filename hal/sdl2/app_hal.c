@@ -10,6 +10,7 @@
 
 #define LV_HOR_RES_MAX 320
 #define LV_VER_RES_MAX 240
+lv_indev_t *myindev;
 /**
  * A task to measure the elapsed time for LittlevGL
  * @param data unused
@@ -63,6 +64,12 @@ void hal_setup(void)
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = sdl_mouse_read;         /*This function will be called periodically (by the library) to get the mouse position and state*/
     lv_indev_drv_register(&indev_drv);
+
+    static lv_indev_drv_t indev_keydrv;
+    lv_indev_drv_init(&indev_keydrv);          /*Basic initialization*/
+    indev_keydrv.type = LV_INDEV_TYPE_KEYPAD;
+    indev_keydrv.read_cb = sdl_keyboard_read;         /*This function will be called periodically (by the library) to get the mouse position and state*/
+    myindev=lv_indev_drv_register(&indev_keydrv);
 
     /* Tick init.
      * You have to call 'lv_tick_inc()' in periodically to inform LittelvGL about how much time were elapsed

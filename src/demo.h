@@ -24,7 +24,13 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-#define LV_USE_DEMO 1
+#define LV_USE_DEMO1 0
+#define LV_USE_DEMO2 0
+#define LV_USE_DEMO3 0
+
+#define LV_USE_DEMO5    0
+#define LV_USE_DEMO6    1
+
 #define LV_DEMO_WALLPAPER  1
 
 /**********************
@@ -38,7 +44,12 @@ extern "C" {
 /**
  * Create a demo application
  */
-void demo_create(void);
+void demo1_create(void);//tab
+void demo2_create(void);//simple button,persian font,SYMBOL,color
+void demo3_create(void);//calender
+
+void demo5_create(void);//menu
+void demo6_create(void);//menu
 
 /**********************
  *      MACROS
