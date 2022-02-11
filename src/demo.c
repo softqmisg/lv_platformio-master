@@ -29,52 +29,8 @@ static void anim_width_cb(void *var,int32_t v)
 {
     lv_obj_set_width(var,v);
 }
-static void start_btn_event(lv_event_t *e)
+static lv_obj_t *create_page(lv_obj_t *parent)
 {
-    lv_obj_t *menu=lv_obj_get_parent(lv_event_get_target(e));
-    lv_obj_t *side=lv_event_get_user_data(e);
-    lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_ENABLED);
-
-    lv_menu_set_page(menu, NULL);
-    lv_menu_set_sidebar_page(menu,NULL);
-    lv_menu_clear_history(menu);
-    lv_menu_set_sidebar_page(menu,side);
-    lv_obj_set_width(((lv_menu_t *)menu)->sidebar,110);
-    lv_obj_set_width(((lv_menu_t *)menu)->sidebar_header_back_btn,lv_obj_get_style_width(side,0));
-
-    lv_obj_t *btn_back_label=lv_label_create(((lv_menu_t *)menu)->sidebar_header_back_btn);
-    lv_label_set_long_mode(btn_back_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_flex_grow(btn_back_label, 1);
-    lv_label_set_text(btn_back_label,"بازگشت"); 
-
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_var(&a, ((lv_menu_t *)menu)->sidebar);
-    lv_anim_set_values(&a, 0, lv_obj_get_style_width(((lv_menu_t *)menu)->sidebar,0));
-    lv_anim_set_time(&a, 1300);
-    lv_anim_set_exec_cb(&a, anim_width_cb);
-    lv_anim_set_path_cb(&a, lv_anim_path_linear);
-    lv_anim_start(&a);
-}
-
-void  demo6_create(){
-    lv_group_t * g = lv_group_create();
-    lv_group_set_default(g);
-    lv_indev_set_group(myindev,g); 
-
-    lv_obj_t *menu=lv_menu_create(lv_scr_act());
-    lv_color_t bg_color = lv_obj_get_style_bg_color(menu, 0);
-    if(lv_color_brightness(bg_color) > 127) {
-        lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
-    }else{
-        lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 50), 0);
-    }
-    lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
-    lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, menu);
-    lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
-    lv_obj_center(menu);
-
-
    static  lv_style_t btn_focuestyle;
     lv_style_init(&btn_focuestyle);
     lv_style_set_radius(&btn_focuestyle, 3);
@@ -97,8 +53,8 @@ void  demo6_create(){
     lv_style_set_text_color(&btn_pressed, lv_color_hex(0x0));
 
 
-    lv_obj_t *main_page=lv_menu_page_create(menu,NULL);
-    lv_obj_set_style_pad_hor(main_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_t *main_page=lv_menu_page_create(parent,NULL);
+    lv_obj_set_style_pad_hor(main_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
         lv_obj_t *section1=lv_menu_section_create(main_page);
             lv_obj_t *con=lv_menu_cont_create(section1);
             lv_obj_set_style_pad_all(con, 0,0);
@@ -107,7 +63,7 @@ void  demo6_create(){
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section1,0));
-                lv_group_add_obj(g,btn_l);    
+                // lv_group_add_obj(g,btn_l);    
                     con=lv_menu_cont_create(btn_l);
                         lv_obj_t *img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_HOME);   
@@ -124,7 +80,7 @@ void  demo6_create(){
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section1,0));
-                lv_group_add_obj(g,btn_l);  
+                // lv_group_add_obj(g,btn_l);  
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_WIFI);
@@ -140,7 +96,7 @@ void  demo6_create(){
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section1,0));
-                lv_group_add_obj(g,btn_l);  
+                // lv_group_add_obj(g,btn_l);  
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_GPS);
@@ -163,7 +119,7 @@ void  demo6_create(){
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section2,0));
-                lv_group_add_obj(g,btn_l);  
+                // lv_group_add_obj(g,btn_l);  
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_BLUETOOTH);
@@ -179,7 +135,7 @@ void  demo6_create(){
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section2,0));
-                lv_group_add_obj(g,btn_l);  
+                // lv_group_add_obj(g,btn_l);  
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_KEYBOARD);
@@ -187,18 +143,63 @@ void  demo6_create(){
                         lv_label_set_text(label, "KEYBOARD");
                         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
                         lv_obj_set_flex_grow(label, 1);
-    
-    lv_menu_set_sidebar_page(menu,NULL);
+
+    return main_page;
+} 
+static void start_btn_event(lv_event_t *e)
+{
+    LV_LOG_USER("key=%d\n",lv_indev_get_key(myindev));
+    if(lv_indev_get_key(lv_indev_get_act())=='l')
+    {
+        // lv_obj_t *menu=lv_obj_get_parent(lv_event_get_target(e));
+        // lv_obj_t *side=lv_event_get_user_data(e);
+
+        lv_obj_t *menu=lv_menu_create(lv_scr_act());
+        lv_color_t bg_color = lv_obj_get_style_bg_color(menu, 0);
+        if(lv_color_brightness(bg_color) > 127) {
+            lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
+        }else{
+            lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 50), 0);
+        }
+        lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_ENABLED);
+        lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
+        lv_obj_center(menu);
+        lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, menu);
+        
+        lv_obj_t* side=create_page(menu);
+
+        lv_menu_set_page(menu, NULL);
+        lv_menu_set_sidebar_page(menu,NULL);
+        lv_menu_clear_history(menu);
+        lv_menu_set_sidebar_page(menu,side);
+        lv_obj_set_width(((lv_menu_t *)menu)->sidebar,110);
+        lv_obj_set_width(((lv_menu_t *)menu)->sidebar_header_back_btn,lv_obj_get_style_width(side,0));
+
+        lv_obj_t *btn_back_label=lv_label_create(((lv_menu_t *)menu)->sidebar_header_back_btn);
+        lv_label_set_long_mode(btn_back_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+        lv_obj_set_flex_grow(btn_back_label, 1);
+        lv_label_set_text(btn_back_label,"بازگشت"); 
+
+        lv_anim_t a;
+        lv_anim_init(&a);
+        lv_anim_set_var(&a, ((lv_menu_t *)menu)->sidebar);
+        lv_anim_set_values(&a, 0, lv_obj_get_style_width(((lv_menu_t *)menu)->sidebar,0));
+        lv_anim_set_time(&a, 1300);
+        lv_anim_set_exec_cb(&a, anim_width_cb);
+        lv_anim_set_path_cb(&a, lv_anim_path_linear);
+        lv_anim_start(&a);
+    }
+}
+
+void  demo6_create(){
+    lv_group_t * g = lv_group_create();
+    lv_group_set_default(g);
+    lv_indev_set_group(myindev,g); 
    
-    lv_obj_t *start_btn=lv_btn_create(menu);
-    label=lv_label_create(start_btn);
-    lv_label_set_text(label,"منو");
-    lv_obj_add_event_cb(start_btn,start_btn_event,LV_EVENT_CLICKED,main_page);
-    
+    lv_obj_t *start_btn=lv_btn_create(NULL);
+    lv_obj_add_event_cb(start_btn,start_btn_event,LV_EVENT_KEY,0);
 
     LV_LOG_INFO("starting demo\n");
-    
-
 
 }
 #endif
