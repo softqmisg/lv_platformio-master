@@ -8,30 +8,193 @@
  *********************/
 #include "demo.h"
 extern lv_indev_t *myindev;
-
-#if LV_USE_DEMO6
-static void back_event_handler(lv_event_t * e)
+#if LV_USE_DEMO_TEST
+lv_obj_t* switch_menu;
+static void switch_menu_handler(lv_event_t *e)
 {
-    lv_obj_t * obj = lv_event_get_target(e);
-    lv_obj_t * menu = lv_event_get_user_data(e);
-    lv_menu_set_sidebar_page(menu,NULL);
-    lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
-
-    if(lv_menu_back_btn_is_root(menu, obj)) {
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "سلام", "Root back btn click.", NULL, true);
-        lv_obj_center(mbox1);
+    lv_obj_t * obj = lv_event_get_target(e);  
+    lv_obj_t *label=lv_event_get_user_data(e);  
+    if(lv_obj_has_state(obj,LV_STATE_CHECKED))
+    {
+        lv_label_set_text(label,"checked");
     }
+    else{
+        lv_label_set_text(label,"unchecked");
+
+    }
+}
+static void btn_handler(lv_obj_t *e)
+{
+    if(lv_obj_has_state(switch_menu,LV_STATE_CHECKED))
+           lv_obj_clear_state(switch_menu,LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(switch_menu,LV_STATE_CHECKED);
+        lv_event_send(switch_menu,LV_EVENT_CLICKED,0);
+}
+void  demo_test_create(){
 
 
+    lv_group_t * g = lv_group_create();
+    lv_group_set_default(g);
+    lv_indev_set_group(myindev,g); 
+
+    lv_obj_t *label=lv_label_create(lv_scr_act());
+    lv_obj_set_pos(label,100,0);
+    switch_menu = lv_switch_create(lv_scr_act());
+    lv_obj_add_event_cb(switch_menu,switch_menu_handler,LV_EVENT_CLICKED,label);
+    lv_obj_set_pos(switch_menu,100,50);
+
+    lv_obj_t *btn=lv_btn_create(lv_scr_act());
+      lv_obj_set_pos(btn,100,100);
+    lv_obj_add_event_cb(btn,btn_handler,LV_EVENT_CLICKED,0);
+    lv_obj_t *lbl_btn=lv_label_create(btn);
+    lv_label_set_text(lbl_btn,"press");
+}
+#endif
+#if LV_USE_DEMO6
+lv_obj_t *switch_menu;
+// lv_obj_t *menu;
+lv_obj_t *side_page,*root_page,*sub_home_page,*sub_wifi_page;
+lv_group_t * g;
+static void switch_menu_handler(lv_event_t * e);
+static void anim_width_cb(void *var,int32_t v);
+static lv_obj_t *create_root_page(lv_obj_t *parent);
+static lv_obj_t *create_side_page(lv_obj_t *parent);
+static lv_obj_t *create_sub_home(lv_obj_t *parent);
+static lv_obj_t *create_sub_wifi(lv_obj_t *parent);
+//======================================================================//
+static void switch_menu_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t *menu=lv_event_get_user_data(e);
+    LV_LOG_USER("switch handler %d\n\r",code);
+    if(code==LV_EVENT_PRESSED) {
+        LV_LOG_USER("LV_EVENT_VALUE_CHANGED \n\r");
+
+        if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+            LV_LOG_USER("LV_STATE_CHECKED \n\r");       
+            lv_menu_clear_history(menu); /* Clear history because we will be showing the root page later */
+            lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
+            lv_menu_set_page(menu, root_page);
+            lv_menu_set_sidebar_page(menu, side_page);
+            lv_obj_set_width(((lv_menu_t *)menu)->sidebar,110);
+            lv_obj_set_width(((lv_menu_t *)menu)->sidebar_header_back_btn,lv_obj_get_style_width(side_page,0));
+
+            // lv_obj_t *btn_back_label=lv_label_create(((lv_menu_t *)menu)->sidebar_header_back_btn);
+            // lv_label_set_long_mode(btn_back_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+            // lv_obj_set_flex_grow(btn_back_label, 1);
+            // lv_label_set_text(btn_back_label,"بازگشت"); 
+
+            lv_anim_t a;
+            lv_anim_init(&a);
+            lv_anim_set_var(&a, ((lv_menu_t *)menu)->sidebar);
+            lv_anim_set_values(&a, 0, lv_obj_get_style_width(((lv_menu_t *)menu)->sidebar,0));
+            lv_anim_set_time(&a, 1300);
+            lv_anim_set_exec_cb(&a, anim_width_cb);
+            lv_anim_set_path_cb(&a, lv_anim_path_linear);
+            lv_anim_start(&a);            
+            // lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), 0), LV_EVENT_CLICKED, NULL);
+        }else {
+            // LV_LOG_USER("LV_STATE_UNCHECKED \n\r"); 
+            // lv_anim_t a;
+            // lv_anim_init(&a);
+            // lv_anim_set_var(&a, ((lv_menu_t *)menu)->sidebar);
+            // lv_anim_set_values(&a, lv_obj_get_style_width(((lv_menu_t *)menu)->sidebar,0),0);
+            // lv_anim_set_time(&a, 1300);
+            // lv_anim_set_exec_cb(&a, anim_width_cb);
+            // lv_anim_set_path_cb(&a, lv_anim_path_linear);
+            
+            // lv_anim_start(&a);  
+            lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
+            lv_menu_set_sidebar_page(menu, NULL);
+            lv_menu_clear_history(menu); /* Clear history because we will be showing the root page later */
+            lv_menu_set_page(menu, root_page);
+
+        }    
+    }    
+}
+
+static void home_btn_handler(lv_event_t *e)
+{
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+
+}
+static void wifi_btn_handler(lv_event_t *e)
+{
+    lv_obj_t *menu=lv_event_get_user_data(e);
+
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+    lv_group_focus_next(g);
+
+    LV_LOG_USER("%d",lv_obj_get_child_cnt(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu),2)));
 
 }
 static void anim_width_cb(void *var,int32_t v)
 {
     lv_obj_set_width(var,v);
 }
-static lv_obj_t *create_page(lv_obj_t *parent)
+static lv_obj_t *create_sub_home(lv_obj_t *parent)
 {
-   static  lv_style_t btn_focuestyle;
+    lv_obj_t *page=lv_menu_page_create(parent,NULL);
+    lv_obj_set_style_pad_hor(page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
+    lv_menu_separator_create(page);
+    lv_obj_t *section = lv_menu_section_create(page);    
+    lv_obj_t *btn=lv_btn_create(section);
+    lv_obj_t *label=lv_label_create(btn);
+    lv_label_set_text(label,"home");
+
+    return page;    
+}
+
+static lv_obj_t *create_sub_wifi(lv_obj_t *parent)
+{
+    lv_obj_t *page=lv_menu_page_create(parent,NULL);
+    lv_obj_set_style_pad_hor(page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
+
+    lv_menu_separator_create(page);
+    lv_obj_t *section = lv_menu_section_create(page);    
+    lv_obj_t *btn=lv_btn_create(section);
+    lv_obj_t *label=lv_label_create(btn);
+    lv_label_set_text(label,"wifi");
+
+    section = lv_menu_section_create(page);    
+    label=lv_label_create(section);
+    lv_label_set_text(label,"wifi me");
+
+    section = lv_menu_section_create(page);    
+    btn=lv_btn_create(section);
+    label=lv_label_create(btn);
+    lv_label_set_text(label,"check it");
+
+    return page;    
+}
+
+static lv_obj_t *create_root_page(lv_obj_t *parent)
+{
+    lv_obj_t *page=lv_menu_page_create(parent,NULL);
+    lv_obj_set_style_pad_hor(page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
+    lv_menu_separator_create(page);
+    lv_obj_t *section = lv_menu_section_create(page);    
+    lv_obj_t *btn=lv_btn_create(section);
+    lv_obj_t *label=lv_label_create(btn);
+    lv_label_set_text(label,"test");
+    return page;
+}
+static lv_obj_t *create_side_page(lv_obj_t *parent)
+{
+
+    sub_home_page=create_sub_home(parent);
+    sub_wifi_page=create_sub_wifi(parent);
+
+
+    static  lv_style_t btn_focuestyle;
     lv_style_init(&btn_focuestyle);
     lv_style_set_radius(&btn_focuestyle, 3);
     lv_style_set_bg_opa(&btn_focuestyle, LV_OPA_100);
@@ -52,10 +215,9 @@ static lv_obj_t *create_page(lv_obj_t *parent)
     lv_style_set_pad_all(&btn_focuestyle, 0);
     lv_style_set_text_color(&btn_pressed, lv_color_hex(0x0));
 
-
-    lv_obj_t *main_page=lv_menu_page_create(parent,NULL);
-    lv_obj_set_style_pad_hor(main_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
-        lv_obj_t *section1=lv_menu_section_create(main_page);
+    lv_obj_t *page=lv_menu_page_create(parent,NULL);
+    lv_obj_set_style_pad_hor(page, lv_obj_get_style_pad_left(lv_menu_get_main_header(parent), 0), 0);
+        lv_obj_t *section1=lv_menu_section_create(page);
             lv_obj_t *con=lv_menu_cont_create(section1);
             lv_obj_set_style_pad_all(con, 0,0);
                 lv_obj_t *btn_l=lv_btn_create(con);  
@@ -63,7 +225,8 @@ static lv_obj_t *create_page(lv_obj_t *parent)
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section1,0));
-                // lv_group_add_obj(g,btn_l);    
+                lv_menu_set_load_page_event(parent, btn_l, sub_home_page);
+                lv_obj_add_event_cb(btn_l,home_btn_handler,LV_EVENT_CLICKED,NULL);
                     con=lv_menu_cont_create(btn_l);
                         lv_obj_t *img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_HOME);   
@@ -80,7 +243,8 @@ static lv_obj_t *create_page(lv_obj_t *parent)
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section1,0));
-                // lv_group_add_obj(g,btn_l);  
+                lv_menu_set_load_page_event(parent, btn_l, sub_wifi_page);
+                lv_obj_add_event_cb(btn_l,wifi_btn_handler,LV_EVENT_CLICKED,parent);
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_WIFI);
@@ -105,13 +269,13 @@ static lv_obj_t *create_page(lv_obj_t *parent)
                         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
                         lv_obj_set_flex_grow(label, 1);
 
-        con=lv_menu_cont_create(main_page);
+        con=lv_menu_cont_create(page);
             label = lv_label_create(con);
             lv_label_set_text(label, "Others");
             lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
             lv_obj_set_flex_grow(label, 1);
 
-        lv_obj_t *section2=lv_menu_section_create(main_page);
+        lv_obj_t *section2=lv_menu_section_create(page);
             con=lv_menu_cont_create(section2);
             lv_obj_set_style_pad_all(con, 0,0);
                 btn_l=lv_btn_create(con);  
@@ -119,7 +283,6 @@ static lv_obj_t *create_page(lv_obj_t *parent)
                 lv_obj_add_style(btn_l,&btn_focuestyle,LV_STATE_FOCUSED);
                 lv_obj_add_style(btn_l,&btn_pressed,LV_STATE_PRESSED);
                 lv_obj_set_width(btn_l,lv_obj_get_style_width(section2,0));
-                // lv_group_add_obj(g,btn_l);  
                     con=lv_menu_cont_create(btn_l);
                         img =lv_img_create(con);
                         lv_img_set_src(img,LV_SYMBOL_BLUETOOTH);
@@ -144,62 +307,42 @@ static lv_obj_t *create_page(lv_obj_t *parent)
                         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
                         lv_obj_set_flex_grow(label, 1);
 
-    return main_page;
+    return page;
 } 
-static void start_btn_event(lv_event_t *e)
-{
-    LV_LOG_USER("key=%d\n",lv_indev_get_key(myindev));
-    if(lv_indev_get_key(lv_indev_get_act())=='l')
-    {
-        // lv_obj_t *menu=lv_obj_get_parent(lv_event_get_target(e));
-        // lv_obj_t *side=lv_event_get_user_data(e);
-
-        lv_obj_t *menu=lv_menu_create(lv_scr_act());
-        lv_color_t bg_color = lv_obj_get_style_bg_color(menu, 0);
-        if(lv_color_brightness(bg_color) > 127) {
-            lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
-        }else{
-            lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 50), 0);
-        }
-        lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_ENABLED);
-        lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
-        lv_obj_center(menu);
-        lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, menu);
-        
-        lv_obj_t* side=create_page(menu);
-
-        lv_menu_set_page(menu, NULL);
-        lv_menu_set_sidebar_page(menu,NULL);
-        lv_menu_clear_history(menu);
-        lv_menu_set_sidebar_page(menu,side);
-        lv_obj_set_width(((lv_menu_t *)menu)->sidebar,110);
-        lv_obj_set_width(((lv_menu_t *)menu)->sidebar_header_back_btn,lv_obj_get_style_width(side,0));
-
-        lv_obj_t *btn_back_label=lv_label_create(((lv_menu_t *)menu)->sidebar_header_back_btn);
-        lv_label_set_long_mode(btn_back_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-        lv_obj_set_flex_grow(btn_back_label, 1);
-        lv_label_set_text(btn_back_label,"بازگشت"); 
-
-        lv_anim_t a;
-        lv_anim_init(&a);
-        lv_anim_set_var(&a, ((lv_menu_t *)menu)->sidebar);
-        lv_anim_set_values(&a, 0, lv_obj_get_style_width(((lv_menu_t *)menu)->sidebar,0));
-        lv_anim_set_time(&a, 1300);
-        lv_anim_set_exec_cb(&a, anim_width_cb);
-        lv_anim_set_path_cb(&a, lv_anim_path_linear);
-        lv_anim_start(&a);
-    }
-}
 
 void  demo6_create(){
-    lv_group_t * g = lv_group_create();
+
+
+     g = lv_group_create();
     lv_group_set_default(g);
     lv_indev_set_group(myindev,g); 
-   
-    lv_obj_t *start_btn=lv_btn_create(NULL);
-    lv_obj_add_event_cb(start_btn,start_btn_event,LV_EVENT_KEY,0);
 
-    LV_LOG_INFO("starting demo\n");
+    lv_obj_t *menu=lv_menu_create(lv_scr_act());
+    lv_color_t bg_color = lv_obj_get_style_bg_color(menu, 0);
+    if(lv_color_brightness(bg_color) > 127) {
+        lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
+    }else{
+        lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 50), 0);
+    }
+    lv_menu_set_mode_root_back_btn(menu,LV_MENU_ROOT_BACK_BTN_DISABLED);
+    lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
+    lv_obj_center(menu);
+    // lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, 0);
+
+   switch_menu = lv_switch_create(NULL);
+    lv_obj_clear_state(switch_menu,LV_STATE_CHECKED);
+    lv_obj_add_event_cb(switch_menu,switch_menu_handler,LV_EVENT_PRESSED,menu);
+    lv_group_remove_obj(switch_menu);
+
+    side_page=create_side_page(menu);
+    root_page=create_root_page(menu);
+    // sub_home_page=create_sub_home(menu);
+    
+    lv_menu_set_sidebar_page(menu,NULL);
+    lv_menu_set_page(menu,root_page);
+ 
+    LV_LOG_USER("starting demo\n");
+
 
 }
 #endif

@@ -31,6 +31,8 @@ extern "C" {
 #define LV_USE_DEMO5    0
 #define LV_USE_DEMO6    1
 
+#define LV_USE_DEMO_TEST 0
+
 #define LV_DEMO_WALLPAPER  1
 
 /**********************
@@ -50,7 +52,7 @@ void demo3_create(void);//calender
 
 void demo5_create(void);//menu
 void demo6_create(void);//menu
-
+void demo_test_create(void);
 /**********************
  *      MACROS
  **********************/
