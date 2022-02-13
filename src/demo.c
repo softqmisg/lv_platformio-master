@@ -7,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include "demo.h"
+#include <math.h>
 extern lv_indev_t *myindev;
 #if LV_USE_DEMO_TEST
 lv_obj_t* switch_menu;
@@ -49,6 +50,313 @@ void  demo_test_create(){
     lv_obj_add_event_cb(btn,btn_handler,LV_EVENT_CLICKED,0);
     lv_obj_t *lbl_btn=lv_label_create(btn);
     lv_label_set_text(lbl_btn,"press");
+}
+#endif
+#if LV_USE_DEMO9
+static lv_obj_t * chart_one;
+static lv_obj_t * chart_two;
+static lv_obj_t * chart_three;
+
+static lv_chart_series_t * ser_one;
+static lv_chart_series_t * ser_two;
+static lv_chart_series_t * ser_three;
+static void chart_task(lv_timer_t * timer);
+
+static char point_one = 0;
+static char point_two = 0;
+static char point_three = 0;
+
+void demo9_create(void){
+
+    lv_obj_t *tv = lv_tileview_create(lv_scr_act());
+
+
+    lv_obj_t * tile1 = lv_tileview_add_tile(tv, 0, 0, LV_DIR_LEFT);
+
+	/*Create a chart one*/
+	chart_one = lv_chart_create(tile1);
+	lv_chart_set_type(chart_one, LV_CHART_TYPE_LINE);
+	lv_obj_set_size(chart_one, 320, 80);
+	lv_obj_align(chart_one,  LV_ALIGN_TOP_MID, 0, 0);
+	lv_obj_set_style_opa(chart_one, LV_OPA_70,0);
+	// lv_obj_set_style_width(chart_one, 4,0);
+	lv_chart_set_range(chart_one, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	// /*Create a chart two*/
+	chart_two = lv_chart_create(lv_scr_act());
+	lv_obj_set_size(chart_two, 320, 80);
+	lv_obj_align(chart_two,  LV_ALIGN_CENTER, 0, 0);
+	lv_chart_set_type(chart_two, LV_CHART_TYPE_LINE);
+	lv_obj_set_style_opa(chart_two, LV_OPA_70,0);
+	// lv_obj_set_style_width(chart_two, 4,0);
+	lv_chart_set_range(chart_two, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	// /*Create a chart three*/
+	chart_three = lv_chart_create(lv_scr_act());
+	lv_obj_set_size(chart_three, 320, 80);
+	lv_obj_align(chart_three,  LV_ALIGN_BOTTOM_MID, 0, 0);
+	lv_chart_set_type(chart_three, LV_CHART_TYPE_LINE);
+	lv_obj_set_style_opa(chart_three, LV_OPA_70,0);
+	// lv_obj_set_style_width(chart_three, 4,0);
+	lv_chart_set_range(chart_three, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	/*Create a series three*/
+	ser_one = lv_chart_add_series(chart_one, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);      /*Create a series one*/
+	ser_two = lv_chart_add_series(chart_two, lv_palette_main(LV_PALETTE_BLUE),LV_CHART_AXIS_PRIMARY_Y);    /*Create a series two*/
+	ser_three = lv_chart_add_series(chart_three, lv_palette_main(LV_PALETTE_GREEN),LV_CHART_AXIS_PRIMARY_Y); /*Create a series three*/
+
+	/*Create task for filling the Charts*/
+    lv_timer_t * timer =lv_timer_create(chart_task,300,0);
+
+}
+
+void chart_task(lv_timer_t * timer)
+{
+	LV_UNUSED(timer);    /*Unused*/
+
+	/*Summing point one*/
+	point_one = point_one + 1;
+	if(point_one > 300){
+		point_one = 0;
+	}
+    
+	/*Summing point two*/
+	point_two = point_two + 2;
+	if(point_two > 80){
+		point_two = 0;
+	}
+
+	/*Summing point three*/
+	point_three = point_three + 4;
+	if(point_three > 80){
+		point_three = 0;
+	}
+
+	lv_chart_set_next_value(chart_one, ser_one,40*sin(2*3.141596*50*point_one/300)+40);       /*set point_one to next*/
+	lv_chart_set_next_value(chart_two, ser_two, point_two);       /*set point_two to next*/
+	lv_chart_set_next_value(chart_three, ser_three, point_three); /*set point_three to next*/
+
+
+}
+#endif
+#if LV_USE_DEMO8
+lv_group_t * g;
+lv_obj_t *keyboard;
+static void ta_event_cb(lv_event_t * e)
+{
+     lv_event_code_t code = lv_event_get_code(e);
+     lv_obj_t * ta = lv_event_get_target(e);
+    // lv_obj_t * kb = lv_event_get_user_data(e);
+     const char * txt = lv_textarea_get_text(ta);
+
+    if(code == LV_EVENT_FOCUSED) {
+        lv_keyboard_set_textarea(keyboard, ta);
+        lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    if(code == LV_EVENT_DEFOCUSED) {
+        lv_keyboard_set_textarea(keyboard, NULL);
+        lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+    }
+
+     if(code==LV_EVENT_VALUE_CHANGED)
+     {
+        if(txt[0] >= '0' && txt[0] <= '9' &&
+            txt[1] >= '0' && txt[1] <= '9' )
+        {
+            if(txt[2] != ':')
+            {
+                lv_textarea_set_cursor_pos(ta, 2);
+                lv_textarea_add_char(ta, ':');
+            }
+            else
+            {
+                if(txt[3] >= '0' && txt[3] <= '9' &&
+                    txt[4] >= '0' && txt[4] <= '9' )
+                    {
+                        if(txt[5] != ':')
+                        {
+                            lv_textarea_set_cursor_pos(ta, 5);
+                            lv_textarea_add_char(ta, ':');
+                        }                        
+                    }
+            }
+        } 
+     }
+      
+}
+static void float_btn_event_cb(lv_event_t * e)
+{
+    
+     lv_obj_t *list=lv_event_get_user_data(e);
+    int number_of_rows=lv_obj_get_child_cnt(list)-1;
+    lv_obj_t *label=lv_list_add_text(list,0);
+    lv_label_set_text_fmt(label,"%d",number_of_rows+1);
+     lv_obj_set_style_border_width(label,2,0);
+    lv_obj_set_style_border_color(label,lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1),0);
+    lv_obj_t *textarea=lv_textarea_create(label);
+     lv_obj_set_width(textarea, 90);
+    lv_textarea_set_one_line(textarea,true);
+    lv_textarea_set_accepted_chars(textarea,"0123456789:");
+    lv_textarea_set_max_length(textarea, 8);
+    lv_obj_align(textarea, LV_ALIGN_TOP_LEFT,50, 0);
+    lv_obj_set_flex_flow(textarea, LV_FLEX_FLOW_COLUMN);
+    lv_obj_add_event_cb(textarea, ta_event_cb, LV_EVENT_ALL, 0);
+
+
+    lv_obj_t *spinbox2=lv_spinbox_create(label);
+    lv_obj_set_width(spinbox2, 80);
+    lv_spinbox_set_range(spinbox2, -300, 1000);
+    lv_spinbox_set_digit_format(spinbox2, 3, 2);
+    lv_spinbox_step_prev(spinbox2);    lv_spinbox_step_prev(spinbox2);
+    lv_obj_align(spinbox2, LV_ALIGN_TOP_RIGHT, 0, 0);
+    lv_obj_set_flex_flow(spinbox2, LV_FLEX_FLOW_COLUMN);
+    lv_obj_add_state(lv_obj_get_child(list,number_of_rows+1),LV_STATE_CHECKED);
+    lv_obj_scroll_to_view_recursive(list,LV_ANIM_ON);
+
+}
+void  demo8_create()
+{
+    g = lv_group_create();
+    lv_group_set_default(g);
+    lv_indev_set_group(myindev,g); 
+
+
+
+    lv_obj_t *tv = lv_tileview_create(lv_scr_act());
+
+
+    lv_obj_t * tile1 = lv_tileview_add_tile(tv, 0, 0, LV_DIR_LEFT);
+    lv_obj_t * list = lv_list_create(tile1);
+    lv_obj_set_size(list, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_color(list,lv_color_black(),0);
+
+    keyboard= lv_keyboard_create(tile1);
+    lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(keyboard, LV_OBJ_FLAG_FLOATING);
+    // lv_obj_set_size(list, LV_PCT(100), LV_PCT(100));
+    lv_keyboard_set_mode(keyboard,LV_KEYBOARD_MODE_NUMBER);
+
+    /*Create floating btn*/
+    lv_obj_t * float_btn = lv_btn_create(lv_scr_act());
+    lv_obj_set_size(float_btn, 50, 50);
+    lv_obj_add_flag(float_btn, LV_OBJ_FLAG_FLOATING);
+    lv_obj_align(float_btn, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
+    lv_obj_add_event_cb(float_btn, float_btn_event_cb, LV_EVENT_CLICKED,list);
+    lv_obj_set_style_radius(float_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_img_src(float_btn, LV_SYMBOL_PLUS, 0);
+    lv_obj_set_style_text_font(float_btn, lv_theme_get_font_large(float_btn), 0);   
+
+    lv_obj_t *header_list=lv_list_add_text(list,"شماره");
+    lv_obj_set_style_bg_color(header_list,lv_palette_lighten(LV_PALETTE_YELLOW,2),0);
+    lv_obj_t *label=lv_label_create(header_list);
+    lv_label_set_text(label,"زمان");
+    lv_obj_align(label, LV_ALIGN_TOP_LEFT,80, 0);
+    label=lv_label_create(header_list);    
+    lv_label_set_text(label,"دما");
+    lv_obj_align(label, LV_ALIGN_TOP_RIGHT, -20, 0);
+
+
+
+}
+#endif
+#if LV_USE_DEMO7
+#define ITEM_CNT 3
+static void draw_event_cb(lv_event_t * e)
+{
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
+    /*If the cells are drawn...*/
+    if(dsc->part == LV_PART_ITEMS ) {
+        uint32_t row = dsc->id /  lv_table_get_col_cnt(obj);
+        uint32_t col = dsc->id - row * lv_table_get_col_cnt(obj);
+        if(row == 0) {
+            dsc->label_dsc->align = LV_TEXT_ALIGN_CENTER;
+            dsc->rect_dsc->bg_color = lv_color_mix(lv_palette_main(LV_PALETTE_AMBER), dsc->rect_dsc->bg_color, LV_OPA_20);
+            dsc->rect_dsc->bg_opa = LV_OPA_60;
+        }
+        if(row>0 && col==1)
+        {
+            bool chk = lv_table_has_cell_ctrl(obj, row, col, LV_TABLE_CELL_CTRL_CUSTOM_1);
+
+            lv_draw_rect_dsc_t rect_dsc;
+            lv_draw_rect_dsc_init(&rect_dsc);
+            rect_dsc.bg_color = chk ? lv_theme_get_color_primary(obj) : lv_palette_lighten(LV_PALETTE_GREEN, 2);
+            rect_dsc.radius = LV_RADIUS_CIRCLE;
+
+            lv_area_t sw_area;
+            sw_area.x1 = dsc->draw_area->x2 - 50;
+            sw_area.x2 = sw_area.x1 + 40;
+            sw_area.y1 = dsc->draw_area->y1 + lv_area_get_height(dsc->draw_area) / 2 - 10;
+            sw_area.y2 = sw_area.y1 + 20;
+            lv_draw_rect(dsc->draw_ctx, &rect_dsc, &sw_area);
+
+            if(chk) {
+                sw_area.x2 -= 2;
+                sw_area.x1 = sw_area.x2 - 16;
+            } else {
+                sw_area.x1 += 2;
+                sw_area.x2 = sw_area.x1 + 16;
+            }
+            sw_area.y1 += 2;
+            sw_area.y2 -= 2;
+            rect_dsc.bg_color = lv_color_make(0xff,0x32,0x42);
+            lv_draw_rect(dsc->draw_ctx, &rect_dsc, &sw_area);
+        }
+    }
+}
+static void change_event_cb(lv_event_t * e)
+{
+    lv_obj_t * obj = lv_event_get_target(e);
+    uint16_t col;
+    uint16_t row;
+    lv_table_get_selected_cell(obj, &row, &col);
+    bool chk = lv_table_has_cell_ctrl(obj, row, 1, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    if(chk) lv_table_clear_cell_ctrl(obj, row, 1, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    else lv_table_add_cell_ctrl(obj, row, 1, LV_TABLE_CELL_CTRL_CUSTOM_1);
+}
+static void float_btn_event_cb(lv_event_t * e)
+{
+     lv_obj_t *table=lv_event_get_user_data(e);
+    uint32_t rows= lv_table_get_row_cnt(table);
+    lv_table_set_cell_value_fmt(table, rows, 0, "%"LV_PRIu32, rows );
+    lv_obj_scroll_to_view_recursive(table, LV_ANIM_ON);
+}
+void  demo7_create()
+{
+    lv_group_t * g = lv_group_create();
+    lv_group_set_default(g);
+    lv_indev_set_group(myindev,g); 
+    lv_obj_t *table=lv_table_create(lv_scr_act());
+    lv_obj_add_flag(table,LV_OBJ_FLAG_SCROLLABLE);
+    /*Set a smaller height to the table. It'll make it scrollable*/
+
+    lv_obj_set_size(table,LV_SIZE_CONTENT,200);
+    lv_table_set_col_width(table, 0, 150);
+    // lv_table_set_row_cnt(table, ITEM_CNT); /*Not required but avoids a lot of memory reallocation lv_table_set_set_value*/
+    lv_table_set_col_cnt(table, 2);  
+    lv_obj_remove_style(table, NULL, LV_PART_ITEMS | LV_STATE_PRESSED);
+
+    lv_table_set_cell_value_fmt(table, 0, 0, "Items" );
+    lv_table_set_cell_value_fmt(table, 0, 1, "Checked" );
+
+    for(uint32_t i = 1; i < ITEM_CNT; i++) {
+        lv_table_set_cell_value_fmt(table, i, 0, "%"LV_PRIu32, i );
+    }
+    lv_obj_align(table, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_add_event_cb(table, draw_event_cb, LV_EVENT_DRAW_PART_END, NULL);
+    lv_obj_add_event_cb(table, change_event_cb, LV_EVENT_VALUE_CHANGED, NULL);    
+
+    /*Create floating btn*/
+    lv_obj_t * float_btn = lv_btn_create(lv_scr_act());
+    lv_obj_set_size(float_btn, 50, 50);
+    lv_obj_add_flag(float_btn, LV_OBJ_FLAG_FLOATING);
+    lv_obj_align(float_btn, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
+    lv_obj_add_event_cb(float_btn, float_btn_event_cb, LV_EVENT_CLICKED,table);
+    lv_obj_set_style_radius(float_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_img_src(float_btn, LV_SYMBOL_PLUS, 0);
+    lv_obj_set_style_text_font(float_btn, lv_theme_get_font_large(float_btn), 0);    
+
 }
 #endif
 #if LV_USE_DEMO6

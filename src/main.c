@@ -35,6 +35,12 @@ int main(void)
   demo5_create();
 #elif LV_USE_DEMO6
   demo6_create();
+#elif LV_USE_DEMO7
+  demo7_create();
+#elif LV_USE_DEMO8
+  demo8_create();
+#elif LV_USE_DEMO9
+  demo9_create();
 #endif
 
 	hal_loop();
