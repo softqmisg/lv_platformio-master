@@ -8,6 +8,7 @@
  *********************/
 #include "demo.h"
 #include <math.h>
+#include <time.h>
 extern lv_indev_t *myindev;
 #if LV_USE_DEMO_TEST
 lv_obj_t* switch_menu;
@@ -53,6 +54,10 @@ void  demo_test_create(){
 }
 #endif
 #if LV_USE_DEMO9
+LV_FONT_DECLARE(my_symbols);
+#define THERMO1 	"\xEF\x9D\xAB"
+#define THERMO2 	"\xEF\x9D\xA9"
+#define THERMO_3_4 "\xEF\x8B\x88"
 static lv_obj_t * chart_one;
 static lv_obj_t * chart_two;
 static lv_obj_t * chart_three;
@@ -60,8 +65,8 @@ static lv_obj_t * chart_three;
 static lv_chart_series_t * ser_one;
 static lv_chart_series_t * ser_two;
 static lv_chart_series_t * ser_three;
-static void chart_task(lv_timer_t * timer);
-
+void chart_task(lv_timer_t * timer);
+void time_date_handler(lv_timer_t *timer);
 static double point_one = 0;
 static char point_two = 0;
 static char point_three = 0;
@@ -108,12 +113,12 @@ void demo9_create(void){
     lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_GREEN,3), 0);
     lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0);    
         label=lv_label_create(obj);
-        lv_label_set_text(label,LV_SYMBOL_TINT);
+        lv_obj_set_style_text_font(label,&my_symbols,0);
+        lv_label_set_text(label,THERMO1);
         lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
-        lv_obj_set_style_text_font(label,&lv_font_montserrat_20,0);
         lv_obj_align(label,LV_ALIGN_TOP_RIGHT,0,0);
         label=lv_label_create(obj);
-        lv_label_set_text_fmt(label,"%.1f",37.2);
+        lv_label_set_text_fmt(label,"%.1f",37.0);
         lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
         lv_obj_set_style_text_font(label,&lv_font_montserrat_28,0);
         lv_obj_center(label);
@@ -147,7 +152,7 @@ void demo9_create(void){
         lv_obj_set_style_text_font(label,&lv_font_montserrat_20,0);
         lv_obj_align(label,LV_ALIGN_TOP_RIGHT,0,0);
         label=lv_label_create(obj);
-        lv_label_set_text_fmt(label,"%.1f",37.2);
+        lv_label_set_text_fmt(label,"%.1f",45.5);
         lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
         lv_obj_set_style_text_font(label,&lv_font_montserrat_28,0);
         lv_obj_center(label);
@@ -157,12 +162,12 @@ void demo9_create(void){
         lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
         lv_obj_align(label,LV_ALIGN_BOTTOM_RIGHT,0,0);
         label=lv_label_create(obj);
-        lv_label_set_text_fmt(label,"%.1f",37.5);
+        lv_label_set_text_fmt(label,"%.1f",65.0);
         lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
         lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
         lv_obj_align(label,LV_ALIGN_TOP_LEFT,0,0);
         label=lv_label_create(obj);
-        lv_label_set_text_fmt(label,"%.1f",36.5);
+        lv_label_set_text_fmt(label,"%.1f",25.0);
         lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
         lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
         lv_obj_align(label,LV_ALIGN_BOTTOM_LEFT,0,0);
@@ -170,18 +175,20 @@ void demo9_create(void){
     obj = lv_obj_create(cont);
     lv_obj_set_style_pad_all(obj,0,0);
     lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 3,LV_GRID_ALIGN_STRETCH, 1, 2);
+    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1), 0);
+    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,3), 0);
+    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0);     
         chart_one = lv_chart_create(obj);
-        lv_obj_set_size(chart_one, 230, 150);
+        lv_obj_set_size(chart_one, 241, 152);//240,160
+        lv_obj_set_style_pad_all(chart_one,0,0);
         lv_obj_align(chart_one,  LV_ALIGN_CENTER, 0, 0);
         lv_chart_set_range(chart_one, LV_CHART_AXIS_PRIMARY_Y,-20, 20);
-        lv_obj_set_style_size(chart_one, 0, LV_PART_INDICATOR);
         lv_chart_set_type(chart_one, LV_CHART_TYPE_LINE);
         lv_chart_set_point_count(chart_one, NUMPOINTS);
-
         lv_obj_set_style_opa(chart_one, LV_OPA_70,0);
         lv_chart_set_div_line_count(chart_one,10,20);
-        lv_obj_set_style_line_width(chart_one, 1, LV_PART_ITEMS);   /*Remove the lines*/
-
+        lv_obj_set_style_size(chart_one, 0, LV_PART_INDICATOR); /*point indicator*/
+        lv_obj_set_style_line_width(chart_one, 2, LV_PART_ITEMS);   /*width the lines*/
         lv_obj_set_style_bg_color(chart_one, lv_palette_darken(LV_PALETTE_BLUE,3), 0);
         lv_obj_set_style_bg_grad_color(chart_one, lv_palette_darken(LV_PALETTE_AMBER,1), 0);
         lv_obj_set_style_bg_grad_dir(chart_one, LV_GRAD_DIR_VER, 0); 
@@ -198,19 +205,25 @@ void demo9_create(void){
     //     lv_obj_set_style_opa(chart_two, LV_OPA_70,0);
     //     lv_chart_set_range(chart_two, LV_CHART_AXIS_PRIMARY_Y,0, 40);
  
-   obj = lv_obj_create(cont);
-    lv_obj_set_style_pad_all(obj,0,0);
-    lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 4,LV_GRID_ALIGN_STRETCH, 3, 1);
-    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,3), 0);
-    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1), 0);
-    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0); 
-        label=lv_label_create(obj);
-        lv_label_set_text(label,"چهارشنبه 12/11/1400 ");
+   lv_obj_t *obj_buttom_line = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj_buttom_line,0,0);
+    lv_obj_clear_flag(obj_buttom_line,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(obj_buttom_line, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_grid_cell(obj_buttom_line, LV_GRID_ALIGN_STRETCH, 0, 4,LV_GRID_ALIGN_STRETCH, 3, 1);
+    lv_obj_set_style_bg_color(obj_buttom_line, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,3), 0);
+    lv_obj_set_style_bg_grad_color(obj_buttom_line, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1), 0);
+    lv_obj_set_style_bg_grad_dir(obj_buttom_line, LV_GRAD_DIR_VER, 0); 
+        label=lv_label_create(obj_buttom_line);
+        // lv_label_set_text(label,"چهارشنبه 12/11/1400 ");
+        lv_obj_set_style_text_align(label,LV_TEXT_ALIGN_RIGHT,0);
+        lv_obj_set_align(label,LV_ALIGN_LEFT_MID);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_BLUE,0),0);
+
+        label=lv_label_create(obj_buttom_line);
+        // lv_label_set_text(label,"13:42");
         lv_obj_set_style_text_align(label,LV_TEXT_ALIGN_RIGHT,0);
         lv_obj_set_align(label,LV_ALIGN_RIGHT_MID);
-        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_BLUE,2),0);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_BLUE,0),0);
 
 	// /*Create a chart one*/
 	// chart_one = lv_chart_create(tile2);
@@ -247,13 +260,54 @@ void demo9_create(void){
 
 	// /*Create task for filling the Charts*/
     lv_timer_t * timer =lv_timer_create(chart_task,20,0);
+    lv_timer_t *time_date=lv_timer_create(time_date_handler,1000,obj_buttom_line);
+}
+void time_date_handler(lv_timer_t *timer)
+{
+    lv_obj_t *obj=timer->user_data;
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+//   printf("now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+char wday[30];
+    switch (tm.tm_wday)
+    {
+    case 0:
+        /* code */
+        lv_snprintf(wday,30,"یکشنبه");
+    break;
+    case 1:
+            lv_snprintf(wday,30,"دوشنبه");
+    break;
+    case 2:
+        lv_snprintf(wday,30,"سه شنبه");
+    break;
+    case 3:
+        lv_snprintf(wday,30,"چهارشنبه");
+    break;
+    case 4:
+        lv_snprintf(wday,30,"پنجشنبه");
+    break;
+    case 5:
+        lv_snprintf(wday,30,"جمعه");
+    break;
+    case 6:
+        lv_snprintf(wday,30,"شنبه");
+    break;
+
+    default:
+        break;
+    }
+    lv_obj_t *label=lv_obj_get_child(obj,0);
+    lv_label_set_text_fmt(label,"%s %d-%02d-%02d", wday, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+    label=lv_obj_get_child(obj,1);    
+    lv_label_set_text_fmt(label,"%02d:%02d:%02d",tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 }
 
 void chart_task(lv_timer_t * timer) //every 0.1s
 {
 	LV_UNUSED(timer);    /*Unused*/
-    double freq=84.0;
+    double freq=40.0;
     double dt=VIEW_TIME/NUMPOINTS;
 	/*Summing point one*/
 	point_one = point_one + dt;
