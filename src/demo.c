@@ -62,67 +62,208 @@ static lv_chart_series_t * ser_two;
 static lv_chart_series_t * ser_three;
 static void chart_task(lv_timer_t * timer);
 
-static char point_one = 0;
+static double point_one = 0;
 static char point_two = 0;
 static char point_three = 0;
-
+#define NUMPOINTS   230
+#define VIEW_TIME   0.2//s
 void demo9_create(void){
 
-    lv_obj_t *tv = lv_tileview_create(lv_scr_act());
 
 
-    lv_obj_t * tile1 = lv_tileview_add_tile(tv, 0, 0, LV_DIR_LEFT);
+    static lv_coord_t col_dsc[] = {70, 80, 80,60, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t row_dsc[] = {30, 75, 75,30, LV_GRID_TEMPLATE_LAST};
 
-	/*Create a chart one*/
-	chart_one = lv_chart_create(tile1);
-	lv_chart_set_type(chart_one, LV_CHART_TYPE_LINE);
-	lv_obj_set_size(chart_one, 320, 80);
-	lv_obj_align(chart_one,  LV_ALIGN_TOP_MID, 0, 0);
-	lv_obj_set_style_opa(chart_one, LV_OPA_70,0);
-	// lv_obj_set_style_width(chart_one, 4,0);
-	lv_chart_set_range(chart_one, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+    lv_obj_t * cont = lv_obj_create(lv_scr_act());
+    lv_obj_set_grid_dsc_array(cont, col_dsc, row_dsc);
+    lv_obj_set_size(cont, 320, 240);
+    lv_obj_center(cont);    
+    lv_obj_clear_flag(cont,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_all(cont,0,0);
+    lv_obj_set_style_bg_color(cont, lv_palette_darken(LV_PALETTE_LIGHT_BLUE,0), 0);
+    lv_obj_set_style_bg_grad_color(cont, lv_palette_darken(LV_PALETTE_LIGHT_BLUE,1), 0);
+    lv_obj_set_style_bg_grad_dir(cont, LV_GRAD_DIR_VER, 0);
 
-	// /*Create a chart two*/
-	chart_two = lv_chart_create(lv_scr_act());
-	lv_obj_set_size(chart_two, 320, 80);
-	lv_obj_align(chart_two,  LV_ALIGN_CENTER, 0, 0);
-	lv_chart_set_type(chart_two, LV_CHART_TYPE_LINE);
-	lv_obj_set_style_opa(chart_two, LV_OPA_70,0);
-	// lv_obj_set_style_width(chart_two, 4,0);
-	lv_chart_set_range(chart_two, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+    lv_obj_t * obj;
+    lv_obj_t *label;
 
-	// /*Create a chart three*/
-	chart_three = lv_chart_create(lv_scr_act());
-	lv_obj_set_size(chart_three, 320, 80);
-	lv_obj_align(chart_three,  LV_ALIGN_BOTTOM_MID, 0, 0);
-	lv_chart_set_type(chart_three, LV_CHART_TYPE_LINE);
-	lv_obj_set_style_opa(chart_three, LV_OPA_70,0);
-	// lv_obj_set_style_width(chart_three, 4,0);
-	lv_chart_set_range(chart_three, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+    obj = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj,0,0);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 4,LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1), 0);
+    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,3), 0);
+    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0); 
+        label=lv_label_create(obj);
+        lv_label_set_text(label,LV_SYMBOL_WIFI"\t"LV_SYMBOL_BLUETOOTH "\t"LV_SYMBOL_SD_CARD "\t"LV_SYMBOL_GPS "\t"LV_SYMBOL_BATTERY_3);
+        lv_obj_center(label);
+        lv_obj_set_style_pad_all(label,0,0);
 
-	/*Create a series three*/
+    obj = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj,0,0);
+    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 3, 1,LV_GRID_ALIGN_STRETCH, 1, 1);
+    lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_GREEN,1), 0);
+    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_GREEN,3), 0);
+    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0);    
+        label=lv_label_create(obj);
+        lv_label_set_text(label,LV_SYMBOL_TINT);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_20,0);
+        lv_obj_align(label,LV_ALIGN_TOP_RIGHT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",37.2);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_28,0);
+        lv_obj_center(label);
+        label=lv_label_create(obj);
+        lv_label_set_text(label,"°C");
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_BOTTOM_RIGHT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",37.5);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_TOP_LEFT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",36.5);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_GREEN,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_BOTTOM_LEFT,0,0);
+
+    obj = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj,0,0);
+    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 3, 1,LV_GRID_ALIGN_STRETCH, 2, 1);
+    lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_RED,1), 0);
+    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_RED,3), 0);
+    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0);  
+        label=lv_label_create(obj);
+        lv_label_set_text(label,LV_SYMBOL_TINT);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_20,0);
+        lv_obj_align(label,LV_ALIGN_TOP_RIGHT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",37.2);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_28,0);
+        lv_obj_center(label);
+        label=lv_label_create(obj);
+        lv_label_set_text(label,"\%");
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_BOTTOM_RIGHT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",37.5);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_TOP_LEFT,0,0);
+        label=lv_label_create(obj);
+        lv_label_set_text_fmt(label,"%.1f",36.5);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_RED,4),0);
+        lv_obj_set_style_text_font(label,&lv_font_montserrat_14,0);
+        lv_obj_align(label,LV_ALIGN_BOTTOM_LEFT,0,0);
+
+    obj = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj,0,0);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 3,LV_GRID_ALIGN_STRETCH, 1, 2);
+        chart_one = lv_chart_create(obj);
+        lv_obj_set_size(chart_one, 230, 150);
+        lv_obj_align(chart_one,  LV_ALIGN_CENTER, 0, 0);
+        lv_chart_set_range(chart_one, LV_CHART_AXIS_PRIMARY_Y,-20, 20);
+        lv_obj_set_style_size(chart_one, 0, LV_PART_INDICATOR);
+        lv_chart_set_type(chart_one, LV_CHART_TYPE_LINE);
+        lv_chart_set_point_count(chart_one, NUMPOINTS);
+
+        lv_obj_set_style_opa(chart_one, LV_OPA_70,0);
+        lv_chart_set_div_line_count(chart_one,10,20);
+        lv_obj_set_style_line_width(chart_one, 1, LV_PART_ITEMS);   /*Remove the lines*/
+
+        lv_obj_set_style_bg_color(chart_one, lv_palette_darken(LV_PALETTE_BLUE,3), 0);
+        lv_obj_set_style_bg_grad_color(chart_one, lv_palette_darken(LV_PALETTE_AMBER,1), 0);
+        lv_obj_set_style_bg_grad_dir(chart_one, LV_GRAD_DIR_VER, 0); 
+
+
+    // obj = lv_obj_create(cont);
+    // lv_obj_set_style_pad_all(obj,0,0);
+    // lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
+    // lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    // lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 3,LV_GRID_ALIGN_STRETCH, 2, 1);
+    //     chart_two = lv_chart_create(obj);
+    //     lv_chart_set_type(chart_two, LV_CHART_TYPE_LINE);
+    //     lv_obj_align(chart_two,  LV_ALIGN_TOP_MID, 0, 0);
+    //     lv_obj_set_style_opa(chart_two, LV_OPA_70,0);
+    //     lv_chart_set_range(chart_two, LV_CHART_AXIS_PRIMARY_Y,0, 40);
+ 
+   obj = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(obj,0,0);
+    lv_obj_clear_flag(obj,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 4,LV_GRID_ALIGN_STRETCH, 3, 1);
+    lv_obj_set_style_bg_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,3), 0);
+    lv_obj_set_style_bg_grad_color(obj, lv_palette_lighten(LV_PALETTE_LIGHT_BLUE,1), 0);
+    lv_obj_set_style_bg_grad_dir(obj, LV_GRAD_DIR_VER, 0); 
+        label=lv_label_create(obj);
+        lv_label_set_text(label,"چهارشنبه 12/11/1400 ");
+        lv_obj_set_style_text_align(label,LV_TEXT_ALIGN_RIGHT,0);
+        lv_obj_set_align(label,LV_ALIGN_RIGHT_MID);
+        lv_obj_set_style_text_color(label,lv_palette_darken(LV_PALETTE_BLUE,2),0);
+
+	// /*Create a chart one*/
+	// chart_one = lv_chart_create(tile2);
+	// lv_chart_set_type(chart_one, LV_CHART_TYPE_LINE);
+	// lv_obj_set_size(chart_one, 320, 80);
+	// lv_obj_align(chart_one,  LV_ALIGN_TOP_MID, 0, 0);
+	// lv_obj_set_style_opa(chart_one, LV_OPA_70,0);
+	// // lv_obj_set_style_width(chart_one, 4,0);
+	// lv_chart_set_range(chart_one, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	// // /*Create a chart two*/
+	// chart_two = lv_chart_create(tile2);
+	// lv_obj_set_size(chart_two, 320, 80);
+	// lv_obj_align(chart_two,  LV_ALIGN_CENTER, 0, 0);
+	// lv_chart_set_type(chart_two, LV_CHART_TYPE_LINE);
+	// lv_obj_set_style_opa(chart_two, LV_OPA_70,0);
+	// // lv_obj_set_style_width(chart_two, 4,0);
+    // lv_obj_set_style_line_width(chart_two, 0, LV_PART_ITEMS);   /*Remove the lines*/
+	// lv_chart_set_range(chart_two, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	// // /*Create a chart three*/
+	// chart_three = lv_chart_create(tile2);
+	// lv_obj_set_size(chart_three, 320, 80);
+	// lv_obj_align(chart_three,  LV_ALIGN_BOTTOM_MID, 0, 0);
+	// lv_chart_set_type(chart_three, LV_CHART_TYPE_LINE);
+	// lv_obj_set_style_opa(chart_three, LV_OPA_70,0);
+    // lv_obj_set_style_line_width(chart_three, 8, LV_PART_ITEMS);   /*Remove the lines*/
+	// lv_chart_set_range(chart_three, LV_CHART_AXIS_PRIMARY_Y,0, 80);
+
+	// /*Create a series three*/
 	ser_one = lv_chart_add_series(chart_one, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);      /*Create a series one*/
-	ser_two = lv_chart_add_series(chart_two, lv_palette_main(LV_PALETTE_BLUE),LV_CHART_AXIS_PRIMARY_Y);    /*Create a series two*/
-	ser_three = lv_chart_add_series(chart_three, lv_palette_main(LV_PALETTE_GREEN),LV_CHART_AXIS_PRIMARY_Y); /*Create a series three*/
+	// ser_two = lv_chart_add_series(chart_two, lv_palette_main(LV_PALETTE_BLUE),LV_CHART_AXIS_PRIMARY_Y);    /*Create a series two*/
+	// ser_three = lv_chart_add_series(chart_three, lv_palette_main(LV_PALETTE_GREEN),LV_CHART_AXIS_PRIMARY_Y); /*Create a series three*/
 
-	/*Create task for filling the Charts*/
-    lv_timer_t * timer =lv_timer_create(chart_task,300,0);
+	// /*Create task for filling the Charts*/
+    lv_timer_t * timer =lv_timer_create(chart_task,20,0);
 
 }
 
-void chart_task(lv_timer_t * timer)
+void chart_task(lv_timer_t * timer) //every 0.1s
 {
 	LV_UNUSED(timer);    /*Unused*/
-
+    double freq=84.0;
+    double dt=VIEW_TIME/NUMPOINTS;
 	/*Summing point one*/
-	point_one = point_one + 1;
-	if(point_one > 300){
+	point_one = point_one + dt;
+	if(point_one >= 1/freq){
 		point_one = 0;
 	}
     
 	/*Summing point two*/
 	point_two = point_two + 2;
-	if(point_two > 80){
+	if(point_two > 40){
 		point_two = 0;
 	}
 
@@ -132,9 +273,9 @@ void chart_task(lv_timer_t * timer)
 		point_three = 0;
 	}
 
-	lv_chart_set_next_value(chart_one, ser_one,40*sin(2*3.141596*50*point_one/300)+40);       /*set point_one to next*/
-	lv_chart_set_next_value(chart_two, ser_two, point_two);       /*set point_two to next*/
-	lv_chart_set_next_value(chart_three, ser_three, point_three); /*set point_three to next*/
+	lv_chart_set_next_value(chart_one, ser_one,20*sin(2*3.141596*freq*point_one));       /*set point_one to next*/
+	// lv_chart_set_next_value(chart_two, ser_two, point_two);       /*set point_two to next*/
+	// lv_chart_set_next_value(chart_three, ser_three, point_three); /*set point_three to next*/
 
 
 }
